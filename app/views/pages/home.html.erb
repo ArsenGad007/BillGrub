@@ -1,0 +1,10 @@
+<%= form_with url: root_path, method: :get, class: "search" do %>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg>
+  <%= search_field_tag :q, @query, placeholder: "Найти законопроект", "aria-label": "Поиск" %>
+<% end %>
+
+<% if @bills.empty? %>
+  <p class="empty">Ничего не найдено. Попробуйте другое слово.</p>
+<% else %>
+  <%= render partial: "pages/bill", collection: @bills, as: :bill %>
+<% end %>

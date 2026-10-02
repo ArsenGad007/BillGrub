@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title><%= content_for(:title) || "Законопроекты" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <div class="app">
+
+      <nav class="sidebar" aria-label="Основное меню">
+        <%= link_to root_path, class: "tab #{'active' if current_page?(root_path)}" do %>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 3l9 8M5 10v10h5v-6h4v6h5V10"/></svg>
+          <span>Домой</span>
+        <% end %>
+
+        <%= link_to likes_path, class: "tab #{'active' if current_page?(likes_path)}" do %>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22.5s-8-5.5-9-12A5 5 0 0 1 12 6.5a5 5 0 0 1 9 4C20 17 12 22.5 12 22.5Z"/></svg>
+          <span>Лайки</span>
+        <% end %>
+
+        <%= link_to history_path, class: "tab #{'active' if current_page?(history_path)}" do %>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5M12 7v5l3 2"/></svg>
+          <span>История</span>
+        <% end %>
+      </nav>
+
+      <main class="content">
+        <div class="account-bar">
+          <% if user_signed_in? %>
+            <span class="account-email">
+              <%= current_user.email %>
+            </span>
+
+            <%= button_to "Выйти",
+                  destroy_user_session_path,
+                  method: :delete,
+                  class: "account-button" %>
+          <% else %>
+            <%= link_to "Войти",
+                  new_user_session_path,
+                  class: "account-link" %>
+
+            <%= link_to "Регистрация",
+                  new_user_registration_path,
+                  class: "account-link account-link--primary" %>
+          <% end %>
+        </div>
+
+        <% flash.each do |type, message| %>
+          <div class="flash flash-<%= type %>">
+            <%= message %>
+          </div>
+        <% end %>
+
+        <%= yield %>
+      </main>
+
+    </div>
+  </body>
+</html>

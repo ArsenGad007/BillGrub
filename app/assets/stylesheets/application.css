@@ -1,0 +1,276 @@
+:root {
+    --bg: #f3f5f8;
+    --panel: #ffffff;
+    --line: #d5dae3;
+    --text: #1c2433;
+    --muted: #5d6879;
+    --accent: #2a4fd6;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.55;
+}
+
+/* Каркас: меню слева, справа прокручиваемая область */
+.app { display: flex; height: 100%; }
+
+.sidebar {
+    flex: 0 0 88px;
+    background: var(--panel);
+    border-right: 2px solid var(--text);
+    display: flex;
+    flex-direction: column;
+}
+
+.tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+}
+
+.tab svg {
+    width: 28px;
+    height: 28px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.tab:hover { color: var(--text); }
+.tab:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.tab.active { color: var(--accent); background: #eaeffd; font-weight: 600; }
+
+/* Эта область прокручивается */
+.content { flex: 1; overflow-y: auto; padding: 32px 48px 64px; }
+.content > * { max-width: 960px; margin-left: auto; margin-right: auto; }
+
+/* Поиск */
+.search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel);
+    border: 2px solid var(--text);
+    border-radius: 18px;
+    padding: 0 20px;
+    margin-bottom: 28px;
+}
+
+.search:focus-within { border-color: var(--accent); }
+
+.search svg {
+    width: 24px;
+    height: 24px;
+    flex: none;
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.search input {
+    flex: 1;
+    border: 0;
+    outline: none;
+    background: none;
+    padding: 18px 0;
+    font: inherit;
+    font-size: 1.1rem;
+    color: var(--text);
+}
+
+/* Блоки законопроектов */
+.bill {
+    background: var(--panel);
+    border: 2px solid var(--text);
+    border-radius: 28px;
+    padding: 24px 32px;
+    margin-bottom: 24px;
+}
+
+.bill header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.bill h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 1.4rem; }
+.bill .number { margin: 2px 0 12px; color: var(--muted); font-size: 0.9rem; }
+.bill p { margin: 0; max-width: 70ch; }
+.bill p.number { margin: 2px 0 12px; }
+
+.status {
+    flex: none;
+    font-size: 0.85rem;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    border-radius: 999px;
+    padding: 2px 12px;
+}
+
+.empty { color: var(--muted); }
+
+/* Телефоны: меню уходит вниз экрана */
+@media (max-width: 640px) {
+    .app { flex-direction: column-reverse; }
+    .sidebar { flex: none; flex-direction: row; border-right: 0; border-top: 2px solid var(--text); }
+    .tab { flex: 1; border-bottom: 0; padding: 10px 0; }
+    .content { padding: 20px 16px 32px; }
+    .bill { padding: 20px; border-radius: 22px; }
+}
+
+/* Панель аккаунта (внутри .content, справа сверху) */
+.account-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.account-bar form { margin: 0; }
+
+.account-email {
+    color: var(--muted);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+/* Общий вид кнопок и ссылок-кнопок */
+.account-link,
+.account-button,
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--text);
+    border-radius: 999px;
+    background: var(--panel);
+    color: var(--text);
+    padding: 8px 18px;
+    font: inherit;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+}
+
+.account-link:hover,
+.account-button:hover,
+.btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.account-link:focus-visible,
+.account-button:focus-visible,
+.btn:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Акцентная кнопка («Регистрация», «Создать аккаунт», «Войти» в форме) */
+.account-link--primary,
+.btn--primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.account-link--primary:hover,
+.btn--primary:hover {
+    background: #1f3fb0;
+    border-color: #1f3fb0;
+    color: #fff;
+}
+
+.flash {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    border: 2px solid var(--text);
+    border-radius: 14px;
+    background: var(--panel);
+}
+
+.flash-notice { border-color: #2e8b57; }
+.flash-alert  { border-color: #c0392b; }
+
+/* Страницы входа / регистрации (Devise) */
+.auth-card {
+    max-width: 440px;
+    background: var(--panel);
+    border: 2px solid var(--text);
+    border-radius: 28px;
+    padding: 28px 32px;
+    margin-top: 16px;
+}
+
+.auth-card h1 {
+    margin: 0 0 20px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.6rem;
+}
+
+.auth-card .field { margin-bottom: 16px; }
+
+.auth-card label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.auth-card .hint { margin: 0 0 6px; color: var(--muted); font-size: 0.85rem; }
+
+.auth-card input[type="email"],
+.auth-card input[type="password"],
+.auth-card input[type="text"] {
+    width: 100%;
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    background: var(--bg);
+    padding: 10px 14px;
+    font: inherit;
+    color: var(--text);
+}
+
+.auth-card input:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+.auth-card .field--check { display: flex; align-items: center; gap: 8px; }
+.auth-card .field--check label { margin: 0; font-weight: 400; }
+
+.auth-card .actions { margin-top: 24px; }
+.auth-card .actions .btn { width: 100%; padding: 12px 18px; font-size: 1rem; }
+
+.auth-links { margin-top: 20px; display: grid; gap: 6px; font-size: 0.9rem; }
+.auth-links a { color: var(--accent); }
+
+.auth-errors {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    border: 2px solid #c0392b;
+    border-radius: 14px;
+    background: #fdf1ef;
+    font-size: 0.9rem;
+}
+.auth-errors h2 { margin: 0 0 6px; font-size: 1rem; }
+.auth-errors ul { margin: 0; padding-left: 20px; }
+
+@media (max-width: 640px) {
+    .account-bar { justify-content: flex-start; }
+    .account-email { width: 100%; }
+    .auth-card { padding: 22px 20px; border-radius: 22px; }
+}

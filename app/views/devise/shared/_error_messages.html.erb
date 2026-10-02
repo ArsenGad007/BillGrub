@@ -1,0 +1,10 @@
+<% if resource.errors.any? %>
+  <div id="error_explanation" class="auth-errors" data-turbo-temporary>
+    <h2>Не удалось сохранить: ошибок — <%= resource.errors.count %></h2>
+    <ul>
+      <% resource.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

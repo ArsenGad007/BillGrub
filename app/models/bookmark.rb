@@ -4,7 +4,7 @@ class Bookmark < ApplicationRecord
 
   validates :bill_id, uniqueness: { scope: :user_id, message: "уже в закладках" }
 
-  # Поставить/снять закладку 
+  # Поставить/снять закладку
   def self.toggle!(user:, bill:)
     existing = find_by(user: user, bill: bill)
     if existing

@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
     before_action :authenticate_user!, only: %i[likes history]
-  
+
     # Временные данные. Потом их заменит база данных (модель Bill).
     BILLS = [
         { number: "№ 4821-8", title: "О защите персональных данных",

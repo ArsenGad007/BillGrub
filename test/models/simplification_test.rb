@@ -1,7 +1,7 @@
 require "test_helper"
 
 class SimplificationTest < ActiveSupport::TestCase
-  # ===== Контекст 1: complete! — нейросеть ответила =====
+  # ===== Контекст 1: нейросеть ответила =====
 
   test "complete! сохраняет текст, считает длину и ставит время" do
     s = simplifications(:waiting)

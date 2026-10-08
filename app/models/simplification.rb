@@ -1,5 +1,4 @@
 # Результат работы нейросети: упрощённая версия текста законопроекта.
-# Одна запись = одна попытка упрощения (так можно сравнивать модели и перезапускать неудачные).
 class Simplification < ApplicationRecord
   belongs_to :bill
 
@@ -34,14 +33,13 @@ class Simplification < ApplicationRecord
   end
 
   # Во сколько раз текст стал короче (0.25 = осталось 25% от оригинала).
-  # nil, пока результата нет.
   def compression_ratio
     return nil unless completed? && input_chars.positive?
 
     (output_chars.to_f / input_chars).round(2)
   end
 
-  # Упрощение подозрительно короткое/длинное — стоит проверить вручную
+  # Упрощение подозрительно - стоит проверить вручную
   def suspicious?
     ratio = compression_ratio
     return false if ratio.nil?

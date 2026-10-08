@@ -1,7 +1,7 @@
 require "test_helper"
 
 class BillTest < ActiveSupport::TestCase
-  # ===== Контекст 1: валидации и статусы (опционально, но коротко проверим) =====
+  # ===== Контекст 1: валидации и статусы =====
 
   test "фикстура валидна" do
     assert bills(:under_review_bill).valid?

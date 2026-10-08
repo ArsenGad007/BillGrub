@@ -13,6 +13,6 @@ class CreateSimplifications < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :simplifications, [:bill_id, :state]
+    add_index :simplifications, [ :bill_id, :state ]
   end
 end

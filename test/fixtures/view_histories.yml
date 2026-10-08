@@ -1,11 +1,14 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
+old_view:
   user: one
-  bill: one
-  viewed_at: 2026-10-01 22:56:44
+  bill: under_review_bill
+  viewed_at: 2026-10-01 10:00:00
 
-two:
+new_view:
+  user: one
+  bill: simplified_bill
+  viewed_at: 2026-10-03 10:00:00
+
+other_user_view:
   user: two
-  bill: two
-  viewed_at: 2026-10-01 22:56:44
+  bill: simplified_bill
+  viewed_at: 2026-10-02 10:00:00

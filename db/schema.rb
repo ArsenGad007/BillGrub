@@ -10,14 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_195644) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_100200) do
   create_table "bills", force: :cascade do |t|
     t.string "title"
     t.string "number"
     t.text "description"
-    t.integer "status"
+    t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "source_url"
+    t.text "original_text"
+    t.date "registered_on"
+    t.datetime "parsed_at"
+    t.index ["number"], name: "index_bills_on_number", unique: true
+    t.index ["status"], name: "index_bills_on_status"
   end
 
   create_table "bookmarks", force: :cascade do |t|
@@ -26,7 +32,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_195644) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["bill_id"], name: "index_bookmarks_on_bill_id"
+    t.index ["user_id", "bill_id"], name: "index_bookmarks_on_user_id_and_bill_id", unique: true
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
+  end
+
+  create_table "simplifications", force: :cascade do |t|
+    t.integer "bill_id", null: false
+    t.text "content"
+    t.string "model_name_used", null: false
+    t.integer "state", default: 0, null: false
+    t.text "error_message"
+    t.integer "input_chars", default: 0, null: false
+    t.integer "output_chars", default: 0, null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bill_id", "state"], name: "index_simplifications_on_bill_id_and_state"
+    t.index ["bill_id"], name: "index_simplifications_on_bill_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -53,6 +75,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_195644) do
 
   add_foreign_key "bookmarks", "bills"
   add_foreign_key "bookmarks", "users"
+  add_foreign_key "simplifications", "bills"
   add_foreign_key "view_histories", "bills"
   add_foreign_key "view_histories", "users"
 end

@@ -1,13 +1,35 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Законопроект с текстом, упрощения ещё не было (есть только неудачная попытка)
+under_review_bill:
+  title: О защите персональных данных
+  number: "№ 4821-8"
+  description: Правила хранения и передачи персональных данных.
+  original_text: Статья 1. Оператор обязан хранить персональные данные в течение срока, установленного настоящим законом.
+  status: under_review
+  registered_on: 2026-09-20
 
-one:
-  title: MyString
-  number: MyString
-  description: MyText
-  status: 1
+# Уже упрощён нейросетью
+simplified_bill:
+  title: О цифровых услугах
+  number: "№ 4790-8"
+  description: Порядок работы онлайн-платформ.
+  original_text: Статья 1. Онлайн-платформа обязана раскрывать принципы работы рекомендательных алгоритмов.
+  status: first_reading
+  registered_on: 2026-09-10
 
-two:
-  title: MyString
-  number: MyString
-  description: MyText
-  status: 1
+# Упрощение прямо сейчас в работе
+in_progress_bill:
+  title: Об образовании
+  number: "№ 4688-8"
+  description: Требования к программам среднего образования.
+  original_text: Статья 1. Программы среднего образования утверждаются в порядке, установленном настоящим законом.
+  status: under_review
+  registered_on: 2026-08-30
+
+# Без исходного текста, итоговый статус
+adopted_bill:
+  title: О местном самоуправлении
+  number: "№ 4755-8"
+  description: Распределение полномочий между муниципалитетами и регионами.
+  original_text:
+  status: adopted
+  registered_on: 2026-07-01

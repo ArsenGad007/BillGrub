@@ -1,0 +1,24 @@
+done:
+  bill: simplified_bill
+  model_name_used: claude-sonnet
+  state: completed
+  content: Платформы должны честно объяснять, почему показывают вам именно эти рекомендации.
+  input_chars: 1000
+  output_chars: 250
+  completed_at: 2026-10-02 12:00:00
+
+waiting:
+  bill: in_progress_bill
+  model_name_used: claude-sonnet
+  state: pending
+  input_chars: 800
+  output_chars: 0
+
+broken:
+  bill: under_review_bill
+  model_name_used: claude-sonnet
+  state: failed
+  error_message: Таймаут API
+  input_chars: 600
+  output_chars: 0
+  completed_at: 2026-10-02 11:00:00

@@ -1,2 +1,7 @@
 <h1>Лайки</h1>
-<p class="empty">Здесь появятся законопроекты, которые вы отметили.</p>
+
+<% if @bills.empty? %>
+  <p class="empty">Здесь появятся законопроекты, которые вы отметили.</p>
+<% else %>
+  <%= render partial: "pages/bill", collection: @bills, as: :bill %>
+<% end %>

@@ -105,6 +105,8 @@ body {
 
 .bill header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
 .bill h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 1.4rem; }
+.bill h2 a { color: inherit; text-decoration: none; }
+.bill h2 a:hover { color: var(--accent); }
 .bill .number { margin: 2px 0 12px; color: var(--muted); font-size: 0.9rem; }
 .bill p { margin: 0; max-width: 70ch; }
 .bill p.number { margin: 2px 0 12px; }
@@ -117,6 +119,50 @@ body {
     border-radius: 999px;
     padding: 2px 12px;
 }
+
+/* Страница законопроекта */
+.bill-detail {
+    background: var(--panel);
+    border: 2px solid var(--text);
+    border-radius: 28px;
+    padding: 28px 32px 32px;
+}
+
+.bill-detail__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 20px;
+}
+
+.bill-detail h1 {
+    margin: 0 0 6px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.8rem;
+}
+
+.bill-detail .number { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.bill-detail .status { margin-left: 8px; }
+
+.bill-text { margin-top: 24px; }
+.bill-text h2 { margin: 0 0 8px; font-size: 1.1rem; }
+.bill-text p { margin: 0; max-width: 70ch; }
+.bill-text.simplified {
+    margin-top: 20px;
+    padding: 18px 20px;
+    border-left: 4px solid var(--accent);
+    background: #f7f9ff;
+    border-radius: 0 16px 16px 0;
+}
+
+.bill-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.bill-detail__head .bill-actions { margin-top: 0; }
+.hint { color: var(--muted); font-size: 0.85rem; margin-top: 8px; }
+.back-link { margin-top: 28px; }
+.back-link a { color: var(--accent); }
 
 .empty { color: var(--muted); }
 
@@ -273,4 +319,5 @@ body {
     .account-bar { justify-content: flex-start; }
     .account-email { width: 100%; }
     .auth-card { padding: 22px 20px; border-radius: 22px; }
+    .bill-detail { padding: 22px 20px; border-radius: 22px; }
 }

@@ -1,38 +1,21 @@
 class PagesController < ApplicationController
-    before_action :authenticate_user!, only: %i[likes history]
+  before_action :authenticate_user!, only: %i[likes history]
 
-    # Временные данные. Потом их заменит база данных (модель Bill).
-    BILLS = [
-        { number: "№ 4821-8", title: "О защите персональных данных",
-          text: "Законопроект уточняет правила хранения и передачи персональных данных гражданами и организациями, а также вводит штрафы за утечки.",
-          status: "На рассмотрении" },
-        { number: "№ 4790-8", title: "О цифровых услугах",
-          text: "Определяет порядок работы онлайн-платформ с пользователями и требования к прозрачности рекомендательных алгоритмов.",
-          status: "Первое чтение" },
-        { number: "№ 4755-8", title: "О местном самоуправлении",
-          text: "Меняет распределение полномочий между муниципалитетами и регионами в сфере транспорта и благоустройства.",
-          status: "Принят" },
-        { number: "№ 4702-8", title: "О налоге на недвижимость",
-          text: "Предлагает пересмотреть ставки налога на жилую и коммерческую недвижимость и ввести льготы для многодетных семей.",
-          status: "Отклонён" },
-        { number: "№ 4688-8", title: "Об образовании",
-          text: "Вводит новые требования к программам среднего образования и порядку аттестации учителей.",
-          status: "На рассмотрении" }
-    ]
+  # Главная: список законопроектов из базы + поиск.
+  def home
+    @query = params[:q].to_s.strip
+    @bills = Bill.search(@query).recent
+  end
 
-    def home
-        @query = params[:q].to_s.strip
-        @bills = BILLS
-        if @query.present?
-            @bills = BILLS.select do |bill|
-                "#{bill[:title]} #{bill[:text]} #{bill[:number]}".downcase.include?(@query.downcase)
-            end
-        end
-    end
+  # Закладки текущего пользователя, свежие сверху.
+  def likes
+    @bills = Bill.joins(:bookmarks)
+                 .where(bookmarks: { user_id: current_user.id })
+                 .order("bookmarks.created_at DESC")
+  end
 
-    def likes
-    end
-
-    def history
-    end
+  # Ранее просмотренные законопроекты.
+  def history
+    @bills = current_user.recent_bills
+  end
 end

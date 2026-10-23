@@ -15,10 +15,9 @@ Rails.application.routes.draw do
   get "likes",   to: "pages#likes"
   get "history", to: "pages#history"
 
-  # Эти маршруты пока закомментированы: контроллеров BillsController и
-  # BookmarksController в проекте ещё нет, и при заходе на них был бы
-  # NameError (uninitialized constant). Раскомментируйте после создания.
-  # resources :bills, only: [:show] do
-  #   resources :bookmarks, only: [:create, :destroy]
-  # end
+  # Карточка законопроекта и действия пользователя над ней.
+  resources :bills, only: [ :show ] do
+    resource  :bookmark,        only: [ :create, :destroy ]
+    resource  :simplification,  only: [ :create ]
+  end
 end

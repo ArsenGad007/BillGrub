@@ -1,0 +1,63 @@
+<article class="bill-detail">
+  <header class="bill-detail__head">
+    <div>
+      <h1><%= @bill.title %></h1>
+      <p class="number">
+        <%= @bill.number %>
+        <span class="status"><%= @bill.status_label %></span>
+      </p>
+    </div>
+
+    <div class="bill-actions">
+      <% if user_signed_in? %>
+        <% if current_user.bookmarked?(@bill) %>
+          <%= button_to "Убрать из закладок",
+                bill_bookmark_path(@bill),
+                method: :delete,
+                class: "btn" %>
+        <% else %>
+          <%= button_to "В закладки",
+                bill_bookmark_path(@bill),
+                method: :post,
+                class: "btn" %>
+        <% end %>
+      <% else %>
+        <%= link_to "Войти, чтобы сохранить", new_user_session_path, class: "btn" %>
+      <% end %>
+    </div>
+  </header>
+
+  <section class="bill-text">
+    <h2>Исходный текст</h2>
+    <% if @bill.original_text.present? %>
+      <p><%= @bill.original_text %></p>
+    <% else %>
+      <p class="empty">У этого законопроекта нет исходного текста для упрощения.</p>
+    <% end %>
+  </section>
+
+  <section class="bill-text simplified">
+    <h2>Упрощённо</h2>
+    <% if @bill.simplified? %>
+      <p><%= @bill.latest_simplification.content %></p>
+      <p class="hint">Модель: <%= @bill.latest_simplification.model_name_used %></p>
+    <% else %>
+      <p class="empty">Пока нет упрощённой версии.</p>
+    <% end %>
+  </section>
+
+  <% if @bill.original_text.present? && user_signed_in? %>
+    <div class="bill-actions">
+      <%= button_to(@bill.simplified? ? "Упростить заново" : "Упростить нейросетью",
+            bill_simplification_path(@bill),
+            method: :post,
+            class: "btn btn--primary") %>
+    </div>
+  <% end %>
+
+  <% if @bill.source_url.present? %>
+    <p class="hint">Источник: <%= @bill.source_url %></p>
+  <% end %>
+
+  <p class="back-link"><%= link_to "← Ко всем законопроектам", root_path %></p>
+</article>

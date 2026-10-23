@@ -1,2 +1,7 @@
 <h1>История</h1>
-<p class="empty">Здесь появятся законопроекты, которые вы открывали.</p>
+
+<% if @bills.empty? %>
+  <p class="empty">Здесь появятся законопроекты, которые вы открывали.</p>
+<% else %>
+  <%= render partial: "pages/bill", collection: @bills, as: :bill %>
+<% end %>

@@ -11,12 +11,12 @@
     <div class="bill-actions">
       <% if user_signed_in? %>
         <% if current_user.bookmarked?(@bill) %>
-          <%= button_to "Убрать из закладок",
+          <%= button_to "Убрать из лайков",
                 bill_bookmark_path(@bill),
                 method: :delete,
                 class: "btn" %>
         <% else %>
-          <%= button_to "В закладки",
+          <%= button_to "В лайки",
                 bill_bookmark_path(@bill),
                 method: :post,
                 class: "btn" %>

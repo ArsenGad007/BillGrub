@@ -2,7 +2,7 @@ class Bookmark < ApplicationRecord
   belongs_to :user
   belongs_to :bill
 
-  validates :bill_id, uniqueness: { scope: :user_id, message: "уже в закладках" }
+  validates :bill_id, uniqueness: { scope: :user_id, message: "уже в лайках" }
 
   # Поставить/снять закладку
   def self.toggle!(user:, bill:)

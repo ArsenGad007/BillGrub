@@ -21,7 +21,7 @@ module DumaApi
     OPEN_TIMEOUT = 5
     READ_TIMEOUT = 20
 
-    # limit: API возвращает максимум 20 записей за запрос
+    # API игнорирует limit и всегда отдаёт по 20 записей на страницу
     MAX_PAGE_SIZE = 20
 
     attr_reader :token, :app_token
@@ -34,18 +34,14 @@ module DumaApi
       @http_get = http_get
     end
 
-    # Поиск по законопроектам. from/to — диапазон даты внесения (Date или nil).
+    # Поиск по законопроектам (запрос search.json). from/to — диапазон даты
+    # внесения (Date или nil).
     def search_bills(page: 1, limit: MAX_PAGE_SIZE, from: nil, to: nil)
-      params = { page: page, limit: [ limit, MAX_PAGE_SIZE ].min }
+      params = { page: page, limit: [ limit, MAX_PAGE_SIZE ].min, sort: "date" }
       params[:registration_start] = from.strftime("%Y-%m-%d") if from.respond_to?(:strftime)
       params[:registration_end] = to.strftime("%Y-%m-%d") if to.respond_to?(:strftime)
 
-      get("bills.json", params)
-    end
-
-    # Карточка одного законопроекта (номер вида «4821-8» или «№ 4821-8»).
-    def bill(number)
-      get("bill/#{CGI.escape(number.to_s)}.json")
+      get("search.json", params)
     end
 
     def get(path, params = {})
@@ -80,7 +76,8 @@ module DumaApi
     def perform_http(uri)
       response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https",
         open_timeout: OPEN_TIMEOUT, read_timeout: READ_TIMEOUT) do |http|
-        http.get("#{uri.path}#{uri.query ? "?#{uri.query}" : ''}")
+        http.get("#{uri.path}#{uri.query ? "?#{uri.query}" : ''}",
+          "User-Agent" => "BillGrub/1.0 (учебный проект, клиент API api.duma.gov.ru)")
       end
       { status: response.code.to_i, body: response.body }
     rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e

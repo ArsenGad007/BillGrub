@@ -1,37 +1,26 @@
-# Приводит JSON ответов API Госдумы к атрибутам модели Bill.
+# Приводит JSON записи поиска API Госдумы (search.json) к атрибутам модели Bill.
 #
-# API отдаёт поля с заглавной буквы и в разных секциях (поиск отдаёт
-# «lastStage», карточка — массив «stages»), поэтому маппинг намеренно
-# терпим к вариантам: проверяются возможные ключи, даты — в трёх форматах.
+# Реальная структура записи (проверено на живом API, 27.11.2026):
+#   number, name, comments, introductionDate, url, transcriptUrl,
+#   lastEvent: { stage: {id, name}, phase: {id, name}, solution, date,
+#                document: {name, type} }
+# Карточки по номеру в API нет (bill/:number → 404), поэтому маппинг построен
+# только на данных поиска. Статус определяется и по стадии, и по решению:
+# отклонение видно именно в lastEvent.solution, а не в названии стадии.
 module DumaApi
   module BillMapper
     module_function
 
-    # ---------- Поиск (/bills.json) ----------
+    # ---------- Запись поиска (search.json) ----------
 
     def from_search_hit(hit)
-      stage = hit["lastStage"] || {}
-      attrs = base_attrs(hit)
-      attrs.merge(
-        stage_label: stage["stage"].presence || stage["name"].presence,
-        stage_on: parse_date(stage["date"]),
-        stage_result: stage["result"].presence,
-        source_url: source_url(hit["number"])
-      )
-    end
-
-    # ---------- Карточка (/bill/:number.json) ----------
-
-    def from_card(card)
-      stage = last_stage(card)
-      attrs = base_attrs(card)
-      # Пустая/недоступная карточка не должна затирать данные поиска
-      attrs = attrs.except(:number, :title) if card["number"].blank?
-      attrs.merge(
-        stage_label: attrs[:stage_label].presence || stage[:label],
-        stage_on: attrs[:stage_on].presence || stage[:date],
-        stage_result: attrs[:stage_result].presence || stage[:result],
-        document_url: document_url(card)
+      event = hit["lastEvent"] || {}
+      stage = event["stage"] || {}
+      base_attrs(hit).merge(
+        stage_label: stage["name"].presence,
+        stage_on: parse_date(event["date"]),
+        stage_result: event["solution"].presence,
+        source_url: hit["url"].presence || source_url(hit["number"])
       )
     end
 
@@ -43,12 +32,15 @@ module DumaApi
       "№ #{digits}"
     end
 
-    # Стадия из API -> enum status модели Bill
-    def status_for_stage(stage_label)
+    # Стадия и решение из lastEvent -> enum status модели Bill.
+    # solution точнее стадии: «отклонить законопроект» случается и в первом
+    # чтении (проверено на живых записях), поэтому решение проверяется первым.
+    def status_for_stage(stage_label, solution = nil)
+      return :rejected if solution.to_s.match?(/отклон|снят|отозва/)
+
       text = stage_label.to_s.downcase
-      return :rejected if text.match?(/отклон|снят|отозван/)
-      return :adopted if text.match?(/принят|подписан|опубликов|подготовлен к подписанию/)
-      return :first_reading if text.match?(/перв\S*\s+чтени|1-е чтение|I чтение/)
+      return :first_reading if text.match?(/перв\S*\s+чтени|1-е чтение|i чтение/)
+      return :adopted if text.match?(/совет\S*\s+федерации|президент|опубликован|повторное рассмотрение/)
 
       :under_review
     end
@@ -68,33 +60,13 @@ module DumaApi
     end
 
     private_class_method def base_attrs(raw)
-      stage = raw["lastStage"] || {}
       {
         number: format_number(raw["number"]),
-        title: raw["title"].to_s.strip.presence,
-        description: raw["commentTitle"].to_s.strip.presence,
-        registered_on: parse_date(raw["registrationDate"] || raw["dateIntro"] || stage["date"]),
+        title: raw["name"].to_s.strip.presence,
+        description: raw["comments"].to_s.strip.presence,
+        registered_on: parse_date(raw["introductionDate"]),
         law_number: raw["lawNumber"].to_s.strip.presence
       }
-    end
-
-    private_class_method def last_stage(card)
-      stages = card["stages"].to_a
-      last = stages.reject { |stage| stage["stage"].blank? && stage["name"].blank? }.last || {}
-      {
-        label: last["stage"].presence || last["name"].presence,
-        date: parse_date(last["date"]),
-        result: last["result"].presence
-      }
-    end
-
-    private_class_method def document_url(card)
-      texts = card["texts"].presence || card["documents"].presence || []
-      first = texts.find { |doc| doc["url"].present? }
-      return nil if first.nil?
-
-      url = first["url"].to_s
-      url.match?(%r{\Ahttps?://}) ? url : "https://sozd.duma.gov.ru/#{url.delete_prefix('/')}"
     end
   end
 end

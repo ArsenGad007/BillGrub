@@ -6,10 +6,10 @@ module DumaApi
     # личный ключ — в пути, ключ приложения — в query-параметре app_token.
     test "адрес запроса: личный ключ в пути, ключ приложения в query-параметре app_token" do
       client = Client.new(token: "personal-key", app_token: "app-key-123")
-      uri = client.send(:build_uri, "bills.json", { page: 1, limit: 20 })
+      uri = client.send(:build_uri, "search.json", { page: 1, limit: 20 })
 
       assert_equal "api.duma.gov.ru", uri.host
-      assert_equal "/api/personal-key/bills.json", uri.path
+      assert_equal "/api/personal-key/search.json", uri.path
       params = URI.decode_www_form(uri.query).to_h
       assert_equal "app-key-123", params["app_token"]
       assert_equal "1", params["page"]
@@ -18,7 +18,7 @@ module DumaApi
 
     test "без ключа приложения параметр app_token в запрос не попадает" do
       client = Client.new(token: "personal-key", app_token: nil)
-      uri = client.send(:build_uri, "bills.json", { page: 1 })
+      uri = client.send(:build_uri, "search.json", { page: 1 })
 
       assert_not_includes uri.query.to_s, "app_token"
     end
@@ -34,6 +34,7 @@ module DumaApi
       assert_equal "app-key-123", params["app_token"]
       assert_equal "2", params["page"]
       assert_equal "20", params["limit"]
+      assert_equal "date", params["sort"]
       assert_equal "2026-01-05", params["registration_start"]
       assert_equal "2026-02-01", params["registration_end"]
     end
@@ -41,13 +42,13 @@ module DumaApi
     test "get возвращает разобранный JSON при ответе 200" do
       client = Client.new(token: "personal-key", app_token: "app", http_get: ->(_uri) { { status: 200, body: '{"bills":[]}' } })
 
-      assert_equal({ "bills" => [] }, client.get("bills.json"))
+      assert_equal({ "bills" => [] }, client.get("search.json"))
     end
 
     test "ошибка HTTP 404 содержит подсказку про ключи" do
       client = Client.new(token: "personal-key", app_token: "app", http_get: ->(_uri) { { status: 404, body: "" } })
 
-      error = assert_raises(Error) { client.get("bills.json") }
+      error = assert_raises(Error) { client.get("search.json") }
       assert_match(/HTTP 404/, error.message)
       assert_match(/duma\.key/, error.message)
       assert_match(/duma\.app_token/, error.message)
@@ -56,7 +57,7 @@ module DumaApi
     test "не-JSON ответ превращается в понятную ошибку" do
       client = Client.new(token: "personal-key", app_token: "app", http_get: ->(_uri) { { status: 200, body: "<html>" } })
 
-      error = assert_raises(Error) { client.get("bills.json") }
+      error = assert_raises(Error) { client.get("search.json") }
       assert_match(/не JSON/, error.message)
     end
 

@@ -2,28 +2,25 @@ require "test_helper"
 
 module DumaApi
   class BillMapperTest < ActiveSupport::TestCase
-    SEARCH_HIT = JSON.parse(File.read(Rails.root.join("test/fixtures/duma/bills_search.json")))["bills"].first.freeze
-    CARD = JSON.parse(File.read(Rails.root.join("test/fixtures/duma/bill_card.json"))).freeze
+    SEARCH_HIT = JSON.parse(File.read(Rails.root.join("test/fixtures/duma/bills_search.json")))["laws"].first.freeze
 
-    test "маппинг записи поиска: номер, название, даты, стадия" do
+    test "маппинг записи поиска: номер, название, стадия, решение, ссылка" do
       attrs = BillMapper.from_search_hit(SEARCH_HIT)
 
-      assert_equal "№ 1271570-8", attrs[:number]
-      assert_equal "О внесении изменений в Налоговый кодекс", attrs[:title]
-      assert_equal "О налоговых вычетах для семей с детьми", attrs[:description]
-      assert_equal Date.new(2026, 3, 14), attrs[:registered_on]
-      assert_equal "Рассмотрение в первом чтении", attrs[:stage_label]
-      assert_equal Date.new(2026, 5, 2), attrs[:stage_on]
-      assert_equal "Назначить ответственный комитет", attrs[:stage_result]
-      assert_equal "https://sozd.duma.gov.ru/bill/1271570-8", attrs[:source_url]
+      assert_equal "№ 7902-3", attrs[:number]
+      assert_equal "О внесении изменения и дополнения в Федеральный конституционный закон \"О военных судах Российской Федерации\"", attrs[:title]
+      assert_nil attrs[:description] # comments пуст
+      assert_nil attrs[:registered_on] # introductionDate не задана (старая запись)
+      assert_equal "Рассмотрение законопроекта в первом чтении", attrs[:stage_label]
+      assert_equal Date.new(2013, 9, 19), attrs[:stage_on]
+      assert_equal "снять законопроект с рассмотрения Государственной Думы в связи с отзывом субъектом права законодательной инициативы", attrs[:stage_result]
+      assert_equal "https://sozd.duma.gov.ru/bill/7902-3", attrs[:source_url]
     end
 
-    test "маппинг карточки: стадия берётся из истории, документ — из текстов" do
-      attrs = BillMapper.from_card(CARD)
+    test "registered_on берётся из introductionDate, если она есть" do
+      attrs = BillMapper.from_search_hit(SEARCH_HIT.merge("introductionDate" => "2025-02-14"))
 
-      assert_equal "Рассмотрение в первом чтении", attrs[:stage_label]
-      assert_equal "Ответственный комитет назначен", attrs[:stage_result]
-      assert_equal "https://sozd.duma.gov.ru/download/5F2CE828-6BF6-4BAA-9F33-9BF07D79F6D7", attrs[:document_url]
+      assert_equal Date.new(2025, 2, 14), attrs[:registered_on]
     end
 
     test "номер форматируется с № и без пробелов" do
@@ -32,10 +29,21 @@ module DumaApi
       assert_equal "№ 4821-8", BillMapper.format_number(" № 4821-8 ")
     end
 
+    test "решение об отклонении важнее названия стадии" do
+      assert_equal :rejected, BillMapper.status_for_stage("Рассмотрение законопроекта в первом чтении", "отклонить законопроект")
+      assert_equal :rejected, BillMapper.status_for_stage("Рассмотрение законопроекта во втором чтении", "отклонить законопроект и снять с дальнейшего рассмотрения")
+      assert_equal :rejected, BillMapper.status_for_stage("Внесение законопроекта в Государственную Думу", "снять законопроект с рассмотрения")
+      assert_equal :rejected, BillMapper.status_for_stage(nil, "отозвать законопроект")
+    end
+
     test "стадия маппится на статусы приложения" do
-      assert_equal :under_review, BillMapper.status_for_stage("Предварительное рассмотрение")
-      assert_equal :first_reading, BillMapper.status_for_stage("Рассмотрение в первом чтении")
-      assert_equal :rejected, BillMapper.status_for_stage("Законопроект отклонён")
+      # реальные названия стадий из stages.json живого API
+      assert_equal :under_review, BillMapper.status_for_stage("Внесение законопроекта в Государственную Думу")
+      assert_equal :under_review, BillMapper.status_for_stage("Предварительное рассмотрение законопроекта, внесенного в Государственную Думу")
+      assert_equal :first_reading, BillMapper.status_for_stage("Рассмотрение законопроекта в первом чтении")
+      assert_equal :under_review, BillMapper.status_for_stage("Рассмотрение законопроекта во втором чтении")
+      assert_equal :adopted, BillMapper.status_for_stage("Рассмотрение закона в Совете Федерации")
+      assert_equal :adopted, BillMapper.status_for_stage("Прохождение закона у Президента Российской Федерации")
       assert_equal :adopted, BillMapper.status_for_stage("Опубликование закона")
     end
 
@@ -45,12 +53,6 @@ module DumaApi
       assert_equal Date.new(2026, 3, 14), BillMapper.parse_date("14.03.2026")
       assert_nil BillMapper.parse_date("")
       assert_nil BillMapper.parse_date("не дата")
-    end
-
-    test "относительная ссылка на документ дополняется адресом портала" do
-      card = CARD.merge("texts" => [ { "url" => "/download/ABC-1" } ])
-
-      assert_equal "https://sozd.duma.gov.ru/download/ABC-1", BillMapper.from_card(card)[:document_url]
     end
   end
 end

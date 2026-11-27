@@ -2,9 +2,12 @@
 #
 #   DumaApi::Importer.new(limit: 20).import!
 #
-# Для каждой записи поиска подтягивается карточка (стадии, документы) и,
-# если документ в TXT/RTF, — полный текст. Законопроекты сопоставляются
-# по уникальному номеру: новые создаются, существующие обновляются.
+# Данные берутся из поиска (search.json): стадия, решение и дата лежат в
+# lastEvent записи. Карточек по номеру в API нет (bill/:number → 404), а
+# ссылку на документ API не отдаёт (lastEvent.document содержит только имя
+# и тип), поэтому полный текст не загружается — загрузчик DocumentFetcher
+# остаётся на случай его появления. Законопроекты сопоставляются по
+# уникальному номеру: новые создаются, существующие обновляются.
 module DumaApi
   class Importer
     Result = Data.define(:imported, :updated, :failed, :texts) do
@@ -41,7 +44,8 @@ module DumaApi
       hits = []
       loop do
         response = @client.search_bills(page: page, limit: DumaApi::Client::MAX_PAGE_SIZE, from: from, to: to)
-        found = response["bills"] || response["elements"] || []
+        # Ответ поиска — объект с ключом laws (живой API), либо массив записей.
+        found = response.is_a?(Array) ? response : (response["laws"] || response["bills"] || response["elements"] || [])
         hits.concat(found)
         break if found.empty? || hits.size >= @limit || page >= 10
 
@@ -56,10 +60,7 @@ module DumaApi
       is_new = bill.new_record?
 
       attrs = BillMapper.from_search_hit(hit)
-      # Карточка добавляет историю стадий, номер закона и ссылку на документ;
-      # merge только непустых значений — nil из карточки не затирает данные поиска.
-      attrs = attrs.merge(BillMapper.from_card(card_for(hit)).compact)
-      attrs[:status] = BillMapper.status_for_stage(attrs[:stage_label])
+      attrs[:status] = BillMapper.status_for_stage(attrs[:stage_label], attrs[:stage_result])
       attrs[:parsed_at] = Time.current
 
       bill.update!(attrs)
@@ -68,12 +69,6 @@ module DumaApi
     rescue ActiveRecord::RecordInvalid, DumaApi::Error => e
       Rails.logger.warn("[DumaApi] Пропущен законопроект #{hit['number']}: #{e.message}")
       @stats = @stats.with(failed: @stats.failed + 1)
-    end
-
-    def card_for(hit)
-      @client.bill(hit["number"])
-    rescue DumaApi::Error
-      {} # карточка недоступна — ограничимся данными поиска
     end
 
     def import_full_text(bill)

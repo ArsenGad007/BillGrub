@@ -45,7 +45,11 @@ class DumaIntegrationTest < ActionDispatch::IntegrationTest
   test "синхронизация без ключа объясняет, где его ввести" do
     sign_in users(:one)
 
-    post bills_sync_path
+    # Стаб делаем явно: на машине разработчика config/api_keys.yml заполнен,
+    # и тест должен проверять реакцию на отсутствие ключей независимо от него.
+    with_stub(ApiKeys, :duma_configured?, ->(*) { false }) do
+      post bills_sync_path
+    end
 
     assert_redirected_to root_path
     follow_redirect!

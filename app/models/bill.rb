@@ -77,6 +77,18 @@ class Bill < ApplicationRecord
     )
   end
 
+  # ---------- Real-time (Action Cable) ----------
+
+  # Транслирует актуальный счётчик лайков всем подписчикам потока этого
+  # законопроекта. Подписка создаётся через turbo_stream_from(@bill, :likes)
+  # на странице карточки и в карточках списка на главной.
+  def broadcast_likes
+    broadcast_replace_to [ self, :likes ],
+      target: ActionView::RecordIdentifier.dom_id(self, :likes),
+      partial: "bills/likes",
+      locals: { bill: self }
+  end
+
   def display_text
     latest_simplification&.content.presence || description.to_s
   end

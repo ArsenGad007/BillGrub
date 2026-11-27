@@ -1,8 +1,14 @@
 <article class="bill">
+  <%# Карточка подписана на поток лайков: счётчик обновляется без перезагрузки. %>
+  <%= turbo_stream_from bill, :likes %>
+
   <header>
     <h2><%= link_to bill.title, bill_path(bill) %></h2>
     <span class="status"><%= bill.status_label %></span>
   </header>
-  <p class="number"><%= bill.number %></p>
+  <p class="number">
+    <%= bill.number %>
+    <%= render "bills/likes", bill: bill %>
+  </p>
   <p><%= bill.display_text %></p>
 </article>

@@ -1,0 +1,7 @@
+<%# Счётчик лайков законопроекта. Обновляется у всех открытых страниц в реальном
+    времени: модель Bookmark транслирует turbo-stream в поток [bill, :likes]. %>
+<span class="likes-chip" id="<%= dom_id(bill, :likes) %>" title="Сколько пользователей добавили в лайки">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22.5s-8-5.5-9-12A5 5 0 0 1 12 6.5a5 5 0 0 1 9 4C20 17 12 22.5 12 22.5Z"/></svg>
+  <span class="likes-count"><%= bill.bookmarks_count %></span>
+  <span class="likes-label"><%= ru_pluralize(bill.bookmarks_count, one: "лайк", few: "лайка", many: "лайков") %></span>
+</span>

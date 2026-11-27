@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_100200) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_13_090000) do
   create_table "bills", force: :cascade do |t|
     t.string "title"
     t.string "number"
@@ -22,6 +22,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_100200) do
     t.text "original_text"
     t.date "registered_on"
     t.datetime "parsed_at"
+    t.integer "bookmarks_count", default: 0, null: false
     t.index ["number"], name: "index_bills_on_number", unique: true
     t.index ["status"], name: "index_bills_on_status"
   end

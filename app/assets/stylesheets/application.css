@@ -321,3 +321,32 @@ body {
     .auth-card { padding: 22px 20px; border-radius: 22px; }
     .bill-detail { padding: 22px 20px; border-radius: 22px; }
 }
+
+/* Счётчик лайков: обновляется в реальном времени через Turbo Streams */
+.likes-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 12px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-left: 10px;
+    transition: border-color .15s, color .15s;
+}
+
+.likes-chip svg {
+    width: 15px;
+    height: 15px;
+    fill: #e56b8c;
+    stroke: #e56b8c;
+    stroke-width: 1.8;
+    flex: none;
+}
+
+.likes-count { color: var(--text); font-weight: 600; }
+
+.bill-detail__head .likes-chip { margin-left: 0; align-self: center; }

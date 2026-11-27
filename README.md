@@ -1,25 +1,54 @@
-# README
-
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
 # BillGrub
+
+Парсер законопроектов на Ruby on Rails: собирает законопроекты, проводит их текст
+через нейросеть и показывает упрощённую («человеческую») версию.
+
+## Стек
+
+- Ruby 3.4 / Rails 8.1
+- Hotwire: Turbo Streams + Turbo Frames (real-time) и Stimulus
+- Action Cable (адаптер solid_cable в production, async в development)
+- Devise (вход/регистрация), Solid Cache / Solid Queue / Solid Cable
+- SQLite, Propshaft, Kamal для деплоя
+
+## Запуск
+
+```bash
+bin/setup          # установка зависимостей, база, сиды
+bin/dev            # сервер на http://localhost:3000
+```
+
+## Тесты
+
+```bash
+bin/rails test                     # модульные + интеграционные тесты
+bin/rails test test/integration    # только интеграционные
+```
+
+Интеграционные тесты (`test/integration`):
+
+| Файл | Что проверяет |
+| --- | --- |
+| `happy_path_test.rb` | Подробный happy path: гость -> поиск -> регистрация -> упрощение текста -> лайки -> история -> выход |
+| `negative_path_test.rb` | Негативные кейсы: гость без прав получает страницу входа; упрощение без исходного текста -> ошибка; повторный лайк -> без дубликата; несуществующий законопроект -> 404; изоляция личных данных |
+| `likes_broadcast_test.rb` | Real-time лайки: подписка страниц на потоки Action Cable, трансляция счётчика при лайке, turbo-stream ответ контроллера |
+
+## Real-time лайки (Action Cable + Turbo Streams + Turbo Frames)
+
+Страница законопроекта и карточки на главной подписаны на собственный поток
+каждого законопроекта (`turbo_stream_from bill, :likes`). Когда любой пользователь
+ставит или снимает лайк:
+
+1. Модель `Bookmark` (after_commit) транслирует `turbo-stream action="replace"`
+   в поток `[bill, :likes]` — счётчик лайков обновляется у всех открытых страниц
+   без перезагрузки.
+2. Автору действия контроллер отвечает turbo-stream'ом, который заменяет счётчик
+   и кнопку лайка, обёрнутую в Turbo Frame `like_button_bill_<id>`.
+
+Проверить вживую: откройте карточку одного законопроекта в двух окнах браузера
+(в одном — под другим пользователем) и поставьте лайк. Счётчик «лайк/лайка/лайков»
+изменится в обоих окнах без перезагрузки. Триггер трансляции вручную:
+
+```ruby
+Bill.find(1).broadcast_likes
+```

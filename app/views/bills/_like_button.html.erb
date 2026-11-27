@@ -1,0 +1,19 @@
+<%# Кнопка лайка внутри Turbo Frame: после POST/DELETE запроса контроллер
+    отвечает turbo-stream и заменяет этот фрейм без перезагрузки страницы. %>
+<%= turbo_frame_tag dom_id(bill, :like_button) do %>
+  <% if user_signed_in? %>
+    <% if current_user.bookmarked?(bill) %>
+      <%= button_to "Убрать из лайков",
+            bill_bookmark_path(bill),
+            method: :delete,
+            class: "btn" %>
+    <% else %>
+      <%= button_to "В лайки",
+            bill_bookmark_path(bill),
+            method: :post,
+            class: "btn" %>
+    <% end %>
+  <% else %>
+    <%= link_to "Войти, чтобы сохранить", new_user_session_path, class: "btn" %>
+  <% end %>
+<% end %>

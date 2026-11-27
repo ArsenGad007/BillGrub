@@ -12,3 +12,10 @@ other_user_view:
   user: two
   bill: simplified_bill
   viewed_at: 2026-10-02 10:00:00
+
+# Просмотр, который есть только у пользователя two — по нему проверяем
+# изоляцию личных данных (в истории пользователя one его быть не должно)
+two_adopted_view:
+  user: two
+  bill: adopted_bill
+  viewed_at: 2026-10-05 10:00:00

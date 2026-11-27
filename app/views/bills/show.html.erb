@@ -1,3 +1,7 @@
+<%# Подписка на поток лайков: любые закладки этого законопроекта обновляют
+    счётчик на странице через websocket (Action Cable + Turbo Streams). %>
+<%= turbo_stream_from @bill, :likes %>
+
 <article class="bill-detail">
   <header class="bill-detail__head">
     <div>
@@ -9,21 +13,8 @@
     </div>
 
     <div class="bill-actions">
-      <% if user_signed_in? %>
-        <% if current_user.bookmarked?(@bill) %>
-          <%= button_to "Убрать из лайков",
-                bill_bookmark_path(@bill),
-                method: :delete,
-                class: "btn" %>
-        <% else %>
-          <%= button_to "В лайки",
-                bill_bookmark_path(@bill),
-                method: :post,
-                class: "btn" %>
-        <% end %>
-      <% else %>
-        <%= link_to "Войти, чтобы сохранить", new_user_session_path, class: "btn" %>
-      <% end %>
+      <%= render "bills/likes", bill: @bill %>
+      <%= render "bills/like_button", bill: @bill %>
     </div>
   </header>
 

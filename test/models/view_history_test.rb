@@ -29,7 +29,9 @@ class ViewHistoryTest < ActiveSupport::TestCase
   end
 
   test "recent_bills не показывает чужую историю и уважает лимит" do
-    assert_equal [ bills(:simplified_bill) ], users(:two).recent_bills.to_a
+    # у пользователя два просмотра: adopted_bill (свежее) и simplified_bill;
+    # просмотр пользователя one (under_review_bill) в список не попадает
+    assert_equal [ bills(:adopted_bill), bills(:simplified_bill) ], users(:two).recent_bills.to_a
     assert_equal 1, users(:one).recent_bills(1).to_a.size
   end
 

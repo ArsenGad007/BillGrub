@@ -32,10 +32,10 @@ cp config/api_keys.example.yml config/api_keys.yml
 
 | Сервис | Ключ | Где получить |
 | --- | --- | --- |
-| API Госдумы | `duma.app_token` | http://api.duma.gov.ru — документация и регистрация приложения |
+| API Госдумы | `duma.key` и `duma.app_token` | http://api.duma.gov.ru/key-request — личный ключ и ключ приложения |
 | GigaChat | `gigachat.client_id`, `gigachat.client_secret` | https://developers.sber.ru/gigachat — проект GIGACHAT_API_PERS |
 
-Переменные окружения имеют приоритет над файлом: `DUMA_APP_TOKEN`,
+Переменные окружения имеют приоритет над файлом: `DUMA_KEY`, `DUMA_APP_TOKEN`,
 `GIGACHAT_CLIENT_ID`, `GIGACHAT_CLIENT_SECRET`. Без ключей приложение
 работает: импорт и нейросеть просто недоступны, всё остальное (лайки,
 история, локальное упрощение-заглушка) функционирует.

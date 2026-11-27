@@ -5,16 +5,19 @@
 # 3. Перезапустите сервер (bin/dev), чтобы Rails перечитал конфигурацию.
 #
 # Где взять ключи:
-#   * Госдума (app_token):  http://api.duma.gov.ru  -> раздел «Документация»
-#     -> регистрация приложения на портале sozd.duma.gov.ru
+#   * Госдума (key и app_token): http://api.duma.gov.ru/key-request
+#     — получите личный ключ и зарегистрируйте приложение (даёт app-ключ)
 #   * GigaChat (client_id и client_secret): https://developers.sber.ru/gigachat
 #     -> создайте проект GIGACHAT_API_PERS -> «Ключи API» (Client ID и Client Secret)
 #
 # Значения из переменных окружения имеют приоритет:
-#   DUMA_APP_TOKEN, GIGACHAT_CLIENT_ID, GIGACHAT_CLIENT_SECRET
+#   DUMA_KEY, DUMA_APP_TOKEN, GIGACHAT_CLIENT_ID, GIGACHAT_CLIENT_SECRET
 
 duma:
-  # Токен приложения API Госдумы (подставляется в адрес запроса /api/:app_token/)
+  # Личный API-ключ — подставляется в путь запроса /api/:key/...
+  key: ""
+  # Ключ приложения (начинается с "app") — подставляется в query-параметр
+  # app_token=... (формат запроса приложений из документации API)
   app_token: ""
 
 gigachat:

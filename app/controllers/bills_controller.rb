@@ -12,7 +12,7 @@ class BillsController < ApplicationController
   def sync
     unless ApiKeys.duma_configured?
       return redirect_to root_path,
-        alert: "API Госдумы не настроен: заполните config/api_keys.yml (см. config/api_keys.example.yml)"
+        alert: "API Госдумы не настроен: заполните в config/api_keys.yml личный ключ duma.key и ключ приложения duma.app_token (см. config/api_keys.example.yml)"
     end
 
     stats = DumaApi::Importer.new(limit: 20).import!

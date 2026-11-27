@@ -5,8 +5,9 @@
 # Приоритет источников: переменные окружения -> config/api_keys.yml.
 #
 # Использование:
-#   ApiKeys.duma_token             # токен API Госдумы или nil
-#   ApiKeys.duma_configured?       # true, если токен задан
+#   ApiKeys.duma_key               # личный API-ключ Госдумы или nil
+#   ApiKeys.duma_app_token         # ключ приложения Госдумы или nil
+#   ApiKeys.duma_configured?       # true, если заданы оба ключа Госдумы
 #   ApiKeys.gigachat_config        # хэш настроек GigaChat
 #   ApiKeys.gigachat_configured?   # true, если client_id и client_secret заданы
 
@@ -15,13 +16,18 @@ Rails.application.config.x.api_keys = {}.freeze
 module ApiKeys
   module_function
 
-  def duma_token
+  def duma_key
+    ENV["DUMA_KEY"].presence ||
+      Rails.application.config.x.api_keys.dig(:duma, :key).presence
+  end
+
+  def duma_app_token
     ENV["DUMA_APP_TOKEN"].presence ||
       Rails.application.config.x.api_keys.dig(:duma, :app_token).presence
   end
 
   def duma_configured?
-    duma_token.present?
+    duma_key.present? && duma_app_token.present?
   end
 
   def gigachat_config

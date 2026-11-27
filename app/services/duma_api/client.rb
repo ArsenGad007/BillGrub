@@ -1,8 +1,10 @@
 # Клиент API Государственной Думы (Система обеспечения законодательной
 # деятельности, http://api.duma.gov.ru).
 #
-# Все обращения идут по адресу http://api.duma.gov.ru/api/:app_token/<метод>.json
-# — токен приложения задаётся в config/api_keys.yml (см. api_keys.example.yml).
+# Все обращения идут по адресу (документация «Обращение к API»):
+#   http://api.duma.gov.ru/api/:key/<метод>.json?app_token=:app_token&...
+# :key — личный API-ключ в пути, :app_token — ключ приложения (query-параметр).
+# Оба ключа задаются в config/api_keys.yml (см. api_keys.example.yml).
 #
 # Сеть в тестах не используется: вместо Net::HTTP можно подставить
 # http_get -> lambda(uri) { {status:, body:} }.
@@ -22,12 +24,13 @@ module DumaApi
     # limit: API возвращает максимум 20 записей за запрос
     MAX_PAGE_SIZE = 20
 
-    attr_reader :token
+    attr_reader :token, :app_token
 
-    def initialize(token: ApiKeys.duma_token, http_get: nil)
-      raise NotConfiguredError, "Токен API Госдумы не задан — заполните config/api_keys.yml" if token.blank?
+    def initialize(token: ApiKeys.duma_key, app_token: ApiKeys.duma_app_token, http_get: nil)
+      raise NotConfiguredError, "Личный ключ API Госдумы не задан — заполните config/api_keys.yml" if token.blank?
 
       @token = token
+      @app_token = app_token
       @http_get = http_get
     end
 
@@ -48,7 +51,10 @@ module DumaApi
     def get(path, params = {})
       uri = build_uri(path, params)
       result = fetch(uri)
-      raise Error, "API Госдумы вернуло HTTP #{result[:status]} для #{path}" unless result[:status] == 200
+      unless result[:status] == 200
+        hint = " — проверьте ключи в config/api_keys.yml (нужны личный ключ duma.key и ключ приложения duma.app_token)" if result[:status] == 404
+        raise Error, "API Госдумы вернуло HTTP #{result[:status]} для #{path}#{hint}"
+      end
 
       JSON.parse(result[:body])
     rescue JSON::ParserError => e
@@ -58,6 +64,7 @@ module DumaApi
     private
 
     def build_uri(path, params)
+      params = { app_token: @app_token }.merge(params) if @app_token.present?
       query = params.compact.map { |key, value| "#{CGI.escape(key.to_s)}=#{CGI.escape(value.to_s)}" }.join("&")
       url = "#{BASE_URL}/#{token}/#{path}"
       url = "#{url}?#{query}" unless query.empty?

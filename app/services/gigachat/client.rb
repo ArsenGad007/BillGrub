@@ -14,6 +14,16 @@
 #
 # Сеть в тестах не используется: вместо Net::HTTP подставляется
 # http_post -> lambda(uri, headers, body) { {status:, body:} }.
+
+# Zeitwerk не загружает стандартную библиотеку Ruby — подключаем явно.
+require "net/http"
+require "uri"
+require "cgi"
+require "json"
+require "base64"
+require "openssl"
+require "securerandom"
+
 module GigaChat
   class Client
     AUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth".freeze

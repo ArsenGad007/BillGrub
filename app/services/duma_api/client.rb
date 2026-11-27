@@ -6,6 +6,13 @@
 #
 # Сеть в тестах не используется: вместо Net::HTTP можно подставить
 # http_get -> lambda(uri) { {status:, body:} }.
+
+# Zeitwerk не загружает стандартную библиотеку Ruby — подключаем явно.
+require "net/http"
+require "uri"
+require "cgi"
+require "json"
+
 module DumaApi
   class Client
     BASE_URL = "http://api.duma.gov.ru/api".freeze

@@ -4,6 +4,11 @@
 # https://sozd.duma.gov.ru/download/...). Извлечь текст без внешних
 # зависимостей можно из TXT и RTF (см. DumaApi::RtfText); для PDF
 # остаётся только ссылка на официальный документ.
+
+# Zeitwerk не загружает стандартную библиотеку Ruby — подключаем явно.
+require "net/http"
+require "uri"
+
 module DumaApi
   class DocumentFetcher
     OPEN_TIMEOUT = 5

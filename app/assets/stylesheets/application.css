@@ -350,3 +350,95 @@ body {
 .likes-count { color: var(--text); font-weight: 600; }
 
 .bill-detail__head .likes-chip { margin-left: 0; align-self: center; }
+
+/* Фильтр по дате внесения + кнопка импорта из Госдумы */
+.search input[type="date"] {
+    flex: none;
+    width: 150px;
+    border: 0;
+    outline: none;
+    background: none;
+    padding: 16px 0;
+    font: inherit;
+    color: var(--muted);
+}
+.search input[type="date"]:focus-within { color: var(--text); }
+.search .btn { flex: none; margin-left: 4px; }
+.btn--ghost {
+    background: none;
+    border: 1.5px solid var(--line);
+    color: var(--muted);
+}
+.btn--ghost:hover { border-color: var(--accent); color: var(--accent); background: none; }
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin: -14px 0 20px;
+}
+.toolbar .hint { margin: 0; }
+@media (max-width: 640px) {
+    .toolbar { flex-direction: column; align-items: flex-start; }
+    .search { flex-wrap: wrap; padding: 8px 16px; }
+    .search input[type="date"] { width: 46%; min-width: 130px; padding: 10px 0; }
+}
+
+/* Стадия рассмотрения на карточке списка */
+.bill .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+.bill .meta .stage {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #eaeffd;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Блок данных Госдумы на странице законопроекта */
+.bill-meta { margin: 20px 0; }
+.bill-meta h2 { margin-bottom: 10px; }
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 0;
+}
+.meta-grid > div {
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 14px;
+}
+.meta-grid dt { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.meta-grid dd { margin: 2px 0 0; font-weight: 600; }
+
+/* Полный текст законопроекта */
+.bill-full-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: inherit;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+details > summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+}

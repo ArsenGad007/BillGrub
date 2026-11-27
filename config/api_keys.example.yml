@@ -1,0 +1,33 @@
+# Шаблон файла с ключами внешних API.
+#
+# 1. Скопируйте этот файл: cp config/api_keys.example.yml config/api_keys.yml
+# 2. Вставьте свои ключи. Файл добавлен в .gitignore и НЕ попадёт в git.
+# 3. Перезапустите сервер (bin/dev), чтобы Rails перечитал конфигурацию.
+#
+# Где взять ключи:
+#   * Госдума (app_token):  http://api.duma.gov.ru  -> раздел «Документация»
+#     -> регистрация приложения на портале sozd.duma.gov.ru
+#   * GigaChat (client_id и client_secret): https://developers.sber.ru/gigachat
+#     -> создайте проект GIGACHAT_API_PERS -> «Ключи API» (Client ID и Client Secret)
+#
+# Значения из переменных окружения имеют приоритет:
+#   DUMA_APP_TOKEN, GIGACHAT_CLIENT_ID, GIGACHAT_CLIENT_SECRET
+
+duma:
+  # Токен приложения API Госдумы (подставляется в адрес запроса /api/:app_token/)
+  app_token: ""
+
+gigachat:
+  client_id: ""
+  client_secret: ""
+  # PERS для физлиц, B2B для юрлиц (соответствует вашему тарифу GIGACHAT_API_*)
+  scope: "GIGACHAT_API_PERS"
+  # Модель: GigaChat, GigaChat-Pro, GigaChat-Max
+  model: "GigaChat"
+  # Проверка TLS-сертификатов. GigaChat использует сертификаты НУЦ Минцифры:
+  # скачайте https://gu-st.ru/content/lending/russian_trusted_root_ca_pem.crt
+  # и https://gu-st.ru/content/lending/russian_trusted_sub_ca_pem.crt в config/certs/
+  # и укажите путь ниже. Если не указать ca_file, используются системные сертификаты.
+  # Для локальной отладки можно поставить false, но в продакшене держите true.
+  ssl_verify: true
+  ca_file: ""

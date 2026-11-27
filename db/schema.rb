@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_13_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_27_090000) do
   create_table "bills", force: :cascade do |t|
     t.string "title"
     t.string "number"
@@ -23,7 +23,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_13_090000) do
     t.date "registered_on"
     t.datetime "parsed_at"
     t.integer "bookmarks_count", default: 0, null: false
+    t.string "stage_label"
+    t.date "stage_on"
+    t.string "stage_result"
+    t.string "law_number"
+    t.string "document_url"
+    t.text "full_text"
     t.index ["number"], name: "index_bills_on_number", unique: true
+    t.index ["registered_on"], name: "index_bills_on_registered_on"
     t.index ["status"], name: "index_bills_on_status"
   end
 

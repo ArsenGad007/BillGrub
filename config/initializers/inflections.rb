@@ -14,3 +14,8 @@
 # ActiveSupport::Inflector.inflections(:en) do |inflect|
 #   inflect.acronym "RESTful"
 # end
+
+# Namespace клиента Сбера — GigaChat (Zeitwerk по умолчанию даёт Gigachat).
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.acronym "GigaChat"
+end

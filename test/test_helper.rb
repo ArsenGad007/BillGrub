@@ -17,3 +17,13 @@ end
 class ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 end
+
+# Простейшая заглушка метода на время блока: Minitest::Mock недоступен в
+# bundled-поставке Minitest 6 (файл minitest/mock отсутствует).
+def with_stub(object, method, implementation)
+  original = object.method(method)
+  object.define_singleton_method(method, implementation)
+  yield
+ensure
+  object.define_singleton_method(method, original)
+end

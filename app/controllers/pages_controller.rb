@@ -1,10 +1,16 @@
 class PagesController < ApplicationController
   before_action :authenticate_user!, only: %i[likes history]
 
-  # Главная: список законопроектов из базы + поиск.
+  # Главная: список законопроектов из базы + поиск + фильтр по дате внесения.
   def home
     @query = params[:q].to_s.strip
-    @bills = Bill.search(@query).recent
+    @from = parse_date(params[:from])
+    @to = parse_date(params[:to])
+
+    scope = Bill.search(@query)
+    scope = scope.where("registered_on >= ?", @from) if @from
+    scope = scope.where("registered_on <= ?", @to) if @to
+    @bills = scope.recent
   end
 
   # Закладки текущего пользователя, свежие сверху.
@@ -17,5 +23,14 @@ class PagesController < ApplicationController
   # Ранее просмотренные законопроекты.
   def history
     @bills = current_user.recent_bills
+  end
+
+  private
+
+  # Строку даты из формы в Date; мусор -> nil (без фильтра).
+  def parse_date(value)
+    Date.parse(value.to_s)
+  rescue ArgumentError, TypeError
+    nil
   end
 end

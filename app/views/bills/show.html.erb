@@ -18,12 +18,57 @@
     </div>
   </header>
 
+  <section class="bill-meta">
+    <h2>Данные из Госдумы</h2>
+    <dl class="meta-grid">
+      <% if @bill.registered_on %>
+        <div><dt>Внесён</dt><dd><%= @bill.registered_on.strftime("%d.%m.%Y") %></dd></div>
+      <% end %>
+      <div><dt>Стадия</dt>
+        <dd>
+          <% if @bill.stage_label.present? %>
+            <%= @bill.stage_label %>
+            <% if @bill.stage_on %>— <%= @bill.stage_on.strftime("%d.%m.%Y") %><% end %>
+            <% if @bill.stage_result.present? %> (<%= @bill.stage_result %>)<% end %>
+          <% else %>
+            не получена
+          <% end %>
+        </dd>
+      </div>
+      <% if @bill.law_number.present? %>
+        <div><dt>Номер закона</dt><dd><%= @bill.law_number %></dd></div>
+      <% end %>
+      <div><dt>Официальная карточка</dt>
+        <dd>
+          <% if @bill.source_url.present? %>
+            <%= link_to "sozd.duma.gov.ru", @bill.source_url, target: "_blank", rel: "noopener" %>
+          <% else %>
+            —
+          <% end %>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
   <section class="bill-text">
-    <h2>Исходный текст</h2>
-    <% if @bill.original_text.present? %>
+    <h2>Полный текст</h2>
+    <% if @bill.full_text.present? %>
+      <details <%= "open" if @bill.original_text.blank? %>>
+        <summary>Показать полный текст документа (<%= @bill.full_text.length %> знаков)</summary>
+        <pre class="bill-full-text"><%= @bill.full_text %></pre>
+      </details>
+    <% elsif @bill.document_url.present? %>
+      <p>
+        Текст в формате, который можно прочитать на сайте, не получен.
+        <%= link_to "Скачать официальный документ", @bill.document_url, target: "_blank", rel: "noopener" %>.
+      </p>
+    <% elsif @bill.original_text.present? %>
       <p><%= @bill.original_text %></p>
     <% else %>
-      <p class="empty">У этого законопроекта нет исходного текста для упрощения.</p>
+      <p class="empty">Полный текст пока не загружен. Нажмите «Загрузить из Госдумы» на главной странице.</p>
+    <% end %>
+    <% if @bill.document_url.present? %>
+      <p class="hint">Официальный документ: <%= link_to @bill.document_url, @bill.document_url, target: "_blank", rel: "noopener" %></p>
     <% end %>
   </section>
 

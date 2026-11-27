@@ -1,10 +1,32 @@
 <%= form_with url: root_path, method: :get, class: "search" do %>
   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg>
   <%= search_field_tag :q, @query, placeholder: "Найти законопроект", "aria-label": "Поиск" %>
+  <%= date_field_tag :from, @from, "aria-label": "Внесён с", max: Date.current.strftime("%Y-%m-%d") %>
+  <%= date_field_tag :to, @to, "aria-label": "Внесён по", max: Date.current.strftime("%Y-%m-%d") %>
+  <%= submit_tag "Показать", class: "btn" %>
+  <% if @query.present? || @from.present? || @to.present? %>
+    <%= link_to "Сбросить", root_path, class: "btn btn--ghost" %>
+  <% end %>
 <% end %>
 
+<div class="toolbar">
+  <% if @from || @to %>
+    <p class="hint">Законопроекты, внесённые
+      <% if @from %><b>с <%= @from.strftime("%d.%m.%Y") %></b><% end %>
+      <% if @from && @to %>—<% end %>
+      <% if @to %><b>по <%= @to.strftime("%d.%m.%Y") %></b><% end %>
+      (по дате внесения в Госдуму)
+    </p>
+  <% end %>
+
+  <% if user_signed_in? %>
+    <%= button_to "Загрузить из Госдумы", bills_sync_path, method: :post, class: "btn btn--ghost",
+          title: "Импорт 20 свежих законопроектов с sozd.duma.gov.ru" %>
+  <% end %>
+</div>
+
 <% if @bills.empty? %>
-  <p class="empty">Ничего не найдено. Попробуйте другое слово.</p>
+  <p class="empty">Ничего не найдено. Попробуйте другое слово или другой период.</p>
 <% else %>
   <%= render partial: "pages/bill", collection: @bills, as: :bill %>
 <% end %>

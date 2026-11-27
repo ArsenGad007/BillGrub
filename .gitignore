@@ -10,6 +10,9 @@
 # Ignore locally installed gems.
 /vendor/bundle
 
+# Ignore private API keys (template: config/api_keys.example.yml).
+/config/api_keys.yml
+
 # Ignore all environment files.
 /.env*
 

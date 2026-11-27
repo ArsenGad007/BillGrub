@@ -20,4 +20,7 @@ Rails.application.routes.draw do
     resource  :bookmark,        only: [ :create, :destroy ]
     resource  :simplification,  only: [ :create ]
   end
+
+  # Кнопка «Загрузить из Госдумы» на главной странице.
+  post "bills/sync", to: "bills#sync"
 end

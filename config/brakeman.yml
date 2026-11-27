@@ -1,0 +1,8 @@
+# Настройки Brakeman (bin/brakeman --no-pager).
+#
+# CheckLinkToHref помечает link_to с model-атрибутами source_url и
+# document_url. Эти URL не приходят от пользователя: их строит
+# DumaApi::BillMapper исключительно от доверенного хоста
+# https://sozd.duma.gov.ru/, поэтому проверка отключена осознанно.
+:skip_checks:
+  - CheckLinkToHref

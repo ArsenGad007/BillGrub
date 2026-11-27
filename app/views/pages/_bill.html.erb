@@ -10,5 +10,14 @@
     <%= bill.number %>
     <%= render "bills/likes", bill: bill %>
   </p>
+  <p class="meta">
+    <% if bill.registered_on %>
+      <span>Внесён <%= bill.registered_on.strftime("%d.%m.%Y") %></span>
+    <% end %>
+    <% if bill.stage_label.present? %>
+      <span class="stage"><%= bill.stage_label %></span>
+      <% if bill.stage_on %><time><%= bill.stage_on.strftime("%d.%m.%Y") %></time><% end %>
+    <% end %>
+  </p>
   <p><%= bill.display_text %></p>
 </article>

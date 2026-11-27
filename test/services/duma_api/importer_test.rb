@@ -85,5 +85,41 @@ module DumaApi
       assert_equal 1, stats.imported
       assert Bill.exists?(number: "№ 7902-3")
     end
+
+    # Пагинация: раздаёт страницы поиска по 20 записей, на каждой странице
+    # уникальные номера (клоны фикстурной записи с заменённым номером).
+    def paginated_http_get(total_pages)
+      base = JSON.parse(SEARCH).fetch("laws").first
+      lambda { |uri|
+        page = uri.query.to_s[/page=(\d+)/, 1].to_i
+        laws = page.between?(1, total_pages) ?
+          Array.new(20) { |i| base.merge("number" => "#{900_000 + (page - 1) * 20 + i}-8") } : []
+        { status: 200, body: { count: 34_653, page: page, laws: laws }.to_json }
+      }
+    end
+
+    test "по умолчанию импортируется 100 карточек (пять страниц по 20)" do
+      transport = paginated_http_get(6)
+      client = DumaApi::Client.new(token: "test-token", http_get: transport)
+
+      stats = nil
+      assert_difference -> { Bill.count }, 100 do
+        stats = DumaApi::Importer.new(client: client, http_get: transport).import!
+      end
+
+      assert_equal 100, stats.imported
+    end
+
+    test "за один запуск импортируется не больше 200 карточек" do
+      transport = paginated_http_get(30)
+      client = DumaApi::Client.new(token: "test-token", http_get: transport)
+
+      stats = nil
+      assert_difference -> { Bill.count }, 200 do
+        stats = DumaApi::Importer.new(client: client, http_get: transport, limit: 1000).import!
+      end
+
+      assert_equal 200, stats.imported # limit обрезается до MAX_IMPORT
+    end
   end
 end

@@ -18,7 +18,7 @@ class Bill < ApplicationRecord
     "rejected"      => "Отклонён"
   }.freeze
 
-  validates :title, presence: true, length: { maximum: 500 }
+  validates :title, presence: true, length: { maximum: 1000 }
   validates :number, presence: true, uniqueness: true,
                      format: { with: /\A№\s?\d+-\d+\z/, message: "должен выглядеть как «№ 4821-8»" }
   validates :status, presence: true

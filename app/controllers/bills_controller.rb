@@ -15,7 +15,8 @@ class BillsController < ApplicationController
         alert: "API Госдумы не настроен: заполните в config/api_keys.yml личный ключ duma.key и ключ приложения duma.app_token (см. config/api_keys.example.yml)"
     end
 
-    stats = DumaApi::Importer.new(limit: 20).import!
+    # 100 свежих законопроектов (пять страниц API по 20 записей)
+    stats = DumaApi::Importer.new.import!
     redirect_to root_path, notice: "Госдума: #{stats.summary}"
   rescue DumaApi::Error => e
     redirect_to root_path, alert: "Ошибка обращения к API Госдумы: #{e.message}"

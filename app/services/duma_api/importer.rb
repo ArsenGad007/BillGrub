@@ -1,15 +1,20 @@
 # Импорт законопроектов из API Госдумы в базу приложения.
 #
-#   DumaApi::Importer.new(limit: 20).import!
+#   DumaApi::Importer.new.import!                  # по умолчанию 100 карточек
+#   DumaApi::Importer.new(limit: 200).import!      # больше 200 за запуск нельзя
 #
-# Данные берутся из поиска (search.json): стадия, решение и дата лежат в
-# lastEvent записи. Карточек по номеру в API нет (bill/:number → 404), а
-# ссылку на документ API не отдаёт (lastEvent.document содержит только имя
-# и тип), поэтому полный текст не загружается — загрузчик DocumentFetcher
+# API отдаёт ровно 20 записей на страницу (параметр limit игнорируется), поэтому
+# один запуск покрывает максимум MAX_PAGES × 20 = 200 записей: больше — только
+# повторными запусками. Полный текст не загружается — загрузчик DocumentFetcher
 # остаётся на случай его появления. Законопроекты сопоставляются по
 # уникальному номеру: новые создаются, существующие обновляются.
 module DumaApi
   class Importer
+    # API листается по 20 записей (Client::MAX_PAGE_SIZE), страница = page.
+    MAX_PAGES = 10
+    MAX_IMPORT = Client::MAX_PAGE_SIZE * MAX_PAGES
+    DEFAULT_LIMIT = 100
+
     Result = Data.define(:imported, :updated, :failed, :texts) do
       def total
         imported + updated
@@ -23,10 +28,10 @@ module DumaApi
 
     attr_reader :stats
 
-    def initialize(client: nil, http_get: nil, limit: 20, fetch_documents: true)
+    def initialize(client: nil, http_get: nil, limit: DEFAULT_LIMIT, fetch_documents: true)
       @client = client || DumaApi::Client.new(http_get: http_get)
       @fetcher = DocumentFetcher.new(http_get: http_get)
-      @limit = limit.clamp(1, 100)
+      @limit = limit.clamp(1, MAX_IMPORT)
       @fetch_documents = fetch_documents
     end
 
@@ -47,7 +52,7 @@ module DumaApi
         # Ответ поиска — объект с ключом laws (живой API), либо массив записей.
         found = response.is_a?(Array) ? response : (response["laws"] || response["bills"] || response["elements"] || [])
         hits.concat(found)
-        break if found.empty? || hits.size >= @limit || page >= 10
+        break if found.empty? || hits.size >= @limit || page >= MAX_PAGES
 
         page += 1
       end
